@@ -312,16 +312,17 @@
     /* Fruit tile (left column - draggable) */
     .fruit-row {
       flex: 1;
-      display: grid;
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 8px;
-      align-content: space-around;
+      min-height: 0;
     }
     .fruit-tile {
       position: relative;
+      flex: 1;
+      min-height: 0;
       background: var(--tile-color, var(--peach));
       border-radius: var(--r-md);
-      aspect-ratio: 1.6 / 1;
       display: grid;
       place-items: center;
       box-shadow: var(--shadow-soft);
@@ -366,10 +367,11 @@
     /* Shadow target (right column) */
     .shadow-tile {
       position: relative;
+      flex: 1;
+      min-height: 0;
       background: rgba(255,255,255,0.7);
       border: 2.5px dashed rgba(45,48,71,0.18);
       border-radius: var(--r-md);
-      aspect-ratio: 1.6 / 1;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -556,14 +558,17 @@
       font-size: 15px;
     }
 
-    /* Tiny phones — tighten spacing */
+    /* Tiny phones — tighten spacing and content sizes */
     @media (max-height: 700px) {
       .home-header { padding: 18px 8px 14px; }
       .home-header h1 { font-size: 30px; }
       .menu-card { padding: 18px 14px 14px; }
       .menu-card .emoji { font-size: 40px; }
-      .fruit-tile .fruit-emoji { font-size: 32px; }
-      .shadow-tile .shadow-emoji { font-size: 26px; }
+      .fruit-tile .fruit-emoji { font-size: 30px; }
+      .shadow-tile .shadow-emoji { font-size: 24px; }
+      .big-letter { font-size: 42px; }
+      .big-name { font-size: 18px; }
+      .shadow-tile .shadow-name { font-size: 10px; }
     }
   </style>
 </head>
@@ -997,8 +1002,13 @@
         originRect = tile.getBoundingClientRect();
         pointerStart = { x: e.clientX, y: e.clientY };
 
+        // Save where the tile lives so we can put it back after drag.
+        // We move it to <body> because the .column has backdrop-filter, which
+        // creates a containing block that traps position:fixed and clips it.
+        tile._origin = { parent: tile.parentNode, next: tile.nextSibling };
+
         tile.classList.add('dragging');
-        // Lift tile out of its grid cell so it can move freely; fix to its current position.
+        document.body.appendChild(tile);
         tile.style.position = 'fixed';
         tile.style.left = originRect.left + 'px';
         tile.style.top  = originRect.top  + 'px';
@@ -1058,13 +1068,25 @@
       tile.addEventListener('pointercancel', onUp);
     }
 
+    // Put a tile back into its original column position after a drag ends.
+    function restoreTileToOrigin(tile) {
+      if (!tile._origin) return;
+      const { parent, next } = tile._origin;
+      if (next && next.parentNode === parent) {
+        parent.insertBefore(tile, next);
+      } else {
+        parent.appendChild(tile);
+      }
+      delete tile._origin;
+    }
+
     function returnTile(tile) {
       // Animate back to original cell
-      tile.style.transition = 'transform 0.3s cubic-bezier(.34,1.56,.64,1), left 0.3s ease, top 0.3s ease';
+      tile.style.transition = 'transform 0.3s cubic-bezier(.34,1.56,.64,1)';
       tile.style.transform = 'translate(0,0) scale(1)';
 
       setTimeout(() => {
-        // Reset all the inline styles we added so it returns to grid layout
+        // Reset all the inline styles we added so it returns to its grid cell
         tile.classList.remove('dragging');
         tile.style.position = '';
         tile.style.left = '';
@@ -1074,6 +1096,8 @@
         tile.style.margin = '';
         tile.style.transform = '';
         tile.style.transition = '';
+        // Move the tile back into its column from <body>
+        restoreTileToOrigin(tile);
       }, 300);
     }
 
@@ -1095,7 +1119,8 @@
 
       // Hide tile
       tile.classList.add('matched');
-      // Clean inline styles after fade
+      // Clean inline styles after fade and put tile back in its column
+      // (so the column layout stays stable across matches)
       setTimeout(() => {
         tile.style.position = '';
         tile.style.left = '';
@@ -1104,6 +1129,7 @@
         tile.style.height = '';
         tile.style.margin = '';
         tile.style.transform = '';
+        restoreTileToOrigin(tile);
       }, 300);
 
       // Score, sounds, effects
