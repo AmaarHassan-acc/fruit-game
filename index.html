@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#FFD8C2" />
+  <title>Layan Learning Games</title>
+
+  <!-- Playful chunky display font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===========================================================
+       LAYAN LEARNING GAMES
+       Pastel, chunky, kid-friendly UI (ages 3–7)
+       =========================================================== */
+
+    :root {
+      --bg-1: #FFE4D1;
+      --bg-2: #FFD0E0;
+      --bg-3: #D6E8FF;
+
+      --card: #FFFFFF;
+      --ink: #2D3047;
+      --ink-soft: #6C6F8A;
+
+      --mint:    #B8F2D8;
+      --peach:   #FFC9A8;
+      --lemon:   #FFE89E;
+      --lilac:   #D6C8FF;
+      --sky:     #B8DCFF;
+      --rose:    #FFB8C8;
+
+      --accent:  #FF6B8A;
+      --accent-2: #FFB347;
+      --good:    #4ECDC4;
+      --bad:     #FF7676;
+
+      --shadow-soft: 0 8px 24px rgba(45, 48, 71, 0.08);
+      --shadow-pop:  0 14px 32px rgba(45, 48, 71, 0.18);
+
+      --r-lg: 28px;
+      --r-md: 20px;
+      --r-sm: 14px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden; /* lock scroll for app feel */
+      font-family: 'Fredoka', system-ui, sans-serif;
+      color: var(--ink);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 10% 0%, var(--bg-2) 0%, transparent 50%),
+        radial-gradient(circle at 90% 100%, var(--bg-3) 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg-1) 0%, #FFF1E6 100%);
+      background-attachment: fixed;
+      min-height: 100dvh;
+    }
+
+    /* Decorative floating bubbles in background */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 220px; height: 220px;
+      background: var(--lilac);
+      top: -60px; right: -60px;
+      animation: floatA 9s ease-in-out infinite;
+    }
+    body::after {
+      width: 260px; height: 260px;
+      background: var(--mint);
+      bottom: -80px; left: -80px;
+      animation: floatB 11s ease-in-out infinite;
+    }
+    @keyframes floatA { 50% { transform: translate(-20px, 30px) scale(1.05); } }
+    @keyframes floatB { 50% { transform: translate(30px, -20px) scale(1.08); } }
+
+    /* ============= APP CONTAINER ============= */
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      padding: 22px 18px calc(22px + env(safe-area-inset-bottom));
+      animation: screenIn 0.4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .screen.active { display: flex; }
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ============= HOME SCREEN ============= */
+    .home-header {
+      text-align: center;
+      padding: 28px 8px 22px;
+    }
+    .home-header .badge {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      background: rgba(255,255,255,0.7);
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+    .home-header h1 {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+    .home-header h1 .accent {
+      color: var(--accent);
+      display: inline-block;
+      animation: wiggle 2.4s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0); }
+      50%      { transform: rotate(-4deg); }
+    }
+    .home-header p {
+      margin: 8px 0 0;
+      color: var(--ink-soft);
+      font-size: 15px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .menu-card {
+      position: relative;
+      background: var(--card);
+      border-radius: var(--r-lg);
+      padding: 22px 16px 18px;
+      box-shadow: var(--shadow-soft);
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      text-align: left;
+      overflow: hidden;
+    }
+    .menu-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--card-tint, var(--peach));
+      opacity: 0.6;
+      z-index: 0;
+    }
+    .menu-card > * { position: relative; z-index: 1; }
+    .menu-card:active { transform: scale(0.96); box-shadow: var(--shadow-pop); }
+    .menu-card.locked { cursor: not-allowed; opacity: 0.85; }
+
+    .menu-card .emoji {
+      font-size: 46px;
+      line-height: 1;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));
+    }
+    .menu-card .label {
+      display: block;
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .menu-card .sub {
+      display: block;
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+    .menu-card .pill {
+      position: absolute;
+      top: 12px; right: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.85);
+      color: var(--accent);
+      padding: 4px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.4px;
+    }
+    .menu-card.locked .pill { color: var(--ink-soft); }
+
+    .home-footer {
+      margin-top: auto;
+      text-align: center;
+      padding-top: 18px;
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+    .home-footer .heart { color: var(--accent); }
+
+    /* ============= GAME SCREEN ============= */
+    .game-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .icon-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--card);
+      box-shadow: var(--shadow-soft);
+      font-size: 20px;
+      cursor: pointer;
+      display: grid; place-items: center;
+      transition: transform 0.15s ease;
+      color: var(--ink);
+    }
+    .icon-btn:active { transform: scale(0.9); }
+
+    .game-title {
+      flex: 1;
+      text-align: center;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+    .game-title small {
+      display: block;
+      font-size: 11px;
+      color: var(--ink-soft);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .score-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: var(--shadow-soft);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .score-chip .star { color: var(--accent-2); font-size: 16px; }
+
+    /* Game playfield */
+    .playfield {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      min-height: 0;
+      margin-bottom: 12px;
+    }
+
+    .column {
+      background: rgba(255,255,255,0.55);
+      border-radius: var(--r-lg);
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.8);
+      overflow: hidden;
+    }
+    .column h3 {
+      margin: 2px 0 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--ink-soft);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    /* Fruit tile (left column - draggable) */
+    .fruit-row {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      align-content: space-around;
+    }
+    .fruit-tile {
+      position: relative;
+      background: var(--tile-color, var(--peach));
+      border-radius: var(--r-md);
+      aspect-ratio: 1.6 / 1;
+      display: grid;
+      place-items: center;
+      box-shadow: var(--shadow-soft);
+      cursor: grab;
+      touch-action: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.3s ease;
+      will-change: transform;
+    }
+    .fruit-tile:active { cursor: grabbing; }
+    .fruit-tile.dragging {
+      z-index: 1000;
+      box-shadow: var(--shadow-pop);
+      transition: none;
+      transform: scale(1.12);
+      cursor: grabbing;
+    }
+    .fruit-tile.matched {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.5);
+    }
+    .fruit-tile .fruit-emoji {
+      font-size: 38px;
+      line-height: 1;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.12));
+    }
+    .fruit-tile .speak-btn {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.9);
+      font-size: 13px;
+      display: grid; place-items: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .fruit-tile .speak-btn:active { transform: scale(0.85); }
+
+    /* Shadow target (right column) */
+    .shadow-tile {
+      position: relative;
+      background: rgba(255,255,255,0.7);
+      border: 2.5px dashed rgba(45,48,71,0.18);
+      border-radius: var(--r-md);
+      aspect-ratio: 1.6 / 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+    .shadow-tile.hover {
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.95);
+      transform: scale(1.04);
+    }
+    .shadow-tile.filled {
+      border-style: solid;
+      border-color: transparent;
+      background: var(--tile-color, var(--mint));
+      animation: pop 0.5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes pop {
+      0%   { transform: scale(0.6); }
+      60%  { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+    .shadow-tile .shadow-emoji {
+      font-size: 30px;
+      line-height: 1;
+      filter: brightness(0) opacity(0.18);
+      transition: filter 0.3s ease;
+    }
+    .shadow-tile.filled .shadow-emoji {
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    }
+    .shadow-tile .shadow-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.3px;
+    }
+    .shadow-tile.filled .shadow-name { color: var(--ink); }
+
+    /* Alphabet: big chunky letter on left tiles */
+    .big-letter {
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--ink);
+      text-shadow: 0 3px 0 rgba(255,255,255,0.6);
+      letter-spacing: -1px;
+    }
+
+    /* Alphabet: pictures on right tiles should be vivid (no shadow filter) */
+    .shadow-emoji.solid {
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+    }
+
+    /* Colors: big readable name label on right tiles */
+    .big-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.4px;
+      text-shadow: 0 2px 0 rgba(255,255,255,0.5);
+    }
+    .shadow-tile.filled .big-name { color: var(--ink); }
+
+    /* Bottom toolbar */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+    }
+    .pill-btn {
+      flex: 1;
+      height: 50px;
+      border: none;
+      border-radius: 999px;
+      background: var(--card);
+      box-shadow: var(--shadow-soft);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.15s ease;
+    }
+    .pill-btn:active { transform: scale(0.96); }
+    .pill-btn.primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 20px rgba(255,107,138,0.35);
+    }
+
+    /* Floating message toast */
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.6);
+      background: var(--card);
+      padding: 18px 28px;
+      border-radius: var(--r-md);
+      box-shadow: var(--shadow-pop);
+      font-size: 22px;
+      font-weight: 700;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
+      z-index: 2000;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .toast.good { color: var(--good); }
+    .toast.bad { color: var(--bad); }
+
+    /* Confetti particles */
+    .confetti {
+      position: fixed;
+      width: 10px; height: 14px;
+      pointer-events: none;
+      z-index: 1500;
+      border-radius: 2px;
+      animation: confettiFall 1.2s ease-out forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translate(0,0) rotate(0); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; }
+    }
+
+    /* Win overlay */
+    .win-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 48, 71, 0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 3000;
+    }
+    .win-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .win-card {
+      background: var(--card);
+      border-radius: var(--r-lg);
+      padding: 30px 24px;
+      text-align: center;
+      max-width: 320px;
+      width: 100%;
+      box-shadow: var(--shadow-pop);
+      animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .win-card .stars {
+      font-size: 44px;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+      animation: starShine 1.6s ease-in-out infinite;
+    }
+    @keyframes starShine {
+      0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+      50%      { filter: drop-shadow(0 0 12px var(--accent-2)); }
+    }
+    .win-card h2 {
+      margin: 6px 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .win-card p {
+      color: var(--ink-soft);
+      margin: 4px 0 22px;
+      font-size: 15px;
+    }
+
+    /* Tiny phones — tighten spacing */
+    @media (max-height: 700px) {
+      .home-header { padding: 18px 8px 14px; }
+      .home-header h1 { font-size: 30px; }
+      .menu-card { padding: 18px 14px 14px; }
+      .menu-card .emoji { font-size: 40px; }
+      .fruit-tile .fruit-emoji { font-size: 32px; }
+      .shadow-tile .shadow-emoji { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ===========================================================
+         HOME SCREEN
+         =========================================================== -->
+    <section id="home" class="screen active">
+      <header class="home-header">
+        <span class="badge">For ages 3–7 ✨</span>
+        <h1>Layan <span class="accent">Learning</span><br>Games</h1>
+        <p>Tap a card to play and learn!</p>
+      </header>
+
+      <div class="menu-grid">
+        <button class="menu-card" data-game="fruits" style="--card-tint: var(--peach)">
+          <span class="pill">PLAY</span>
+          <span class="emoji">🍎</span>
+          <span class="label">Fruits</span>
+          <span class="sub">Match the shadow</span>
+        </button>
+
+        <button class="menu-card" data-game="animals" style="--card-tint: var(--mint)">
+          <span class="pill">PLAY</span>
+          <span class="emoji">🐶</span>
+          <span class="label">Animals</span>
+          <span class="sub">Match the shadow</span>
+        </button>
+
+        <button class="menu-card" data-game="colors" style="--card-tint: var(--lilac)">
+          <span class="pill">PLAY</span>
+          <span class="emoji">🎨</span>
+          <span class="label">Colors</span>
+          <span class="sub">Match the name</span>
+        </button>
+
+        <button class="menu-card" data-game="alphabet" style="--card-tint: var(--sky)">
+          <span class="pill">PLAY</span>
+          <span class="emoji">🔤</span>
+          <span class="label">Alphabet</span>
+          <span class="sub">Match the picture</span>
+        </button>
+      </div>
+
+      <div class="home-footer">
+        Made with <span class="heart">♥</span> for little learners
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         GAME SCREEN (used for all 4 games)
+         =========================================================== -->
+    <section id="game" class="screen">
+      <div class="game-bar">
+        <button class="icon-btn" id="btnBack" aria-label="Back">←</button>
+        <div class="game-title">
+          <span id="gameTitle">Fruit Match</span>
+          <small id="gameSubtitle">Drag the fruit to its shadow</small>
+        </div>
+        <div class="score-chip">
+          <span class="star">⭐</span>
+          <span id="scoreValue">0</span>
+        </div>
+      </div>
+
+      <div class="playfield">
+        <div class="column">
+          <h3 id="leftHeader">Fruits</h3>
+          <div class="fruit-row" id="fruitRow"></div>
+        </div>
+        <div class="column">
+          <h3 id="rightHeader">Shadows</h3>
+          <div class="fruit-row" id="shadowRow"></div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="pill-btn" id="btnReset">🔄 Reset</button>
+        <button class="pill-btn primary" id="btnHome">🏠 Home</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Floating UI -->
+  <div class="toast" id="toast"></div>
+
+  <div class="win-overlay" id="winOverlay">
+    <div class="win-card">
+      <div class="stars">⭐⭐⭐</div>
+      <h2>You did it!</h2>
+      <p>You matched all the fruits!<br>Want to play again?</p>
+      <div style="display:flex; gap:10px;">
+        <button class="pill-btn" id="winHome">🏠 Home</button>
+        <button class="pill-btn primary" id="winAgain">▶ Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ===========================================================
+       LAYAN LEARNING GAMES — JS
+       =========================================================== */
+
+    // ---------- DATA ----------
+    // Each game uses the same drag-to-target mechanic but renders different
+    // content per item. `left` and `right` are the inner HTML of each tile.
+    const GAMES = {
+      fruits: {
+        title: 'Fruit Match',
+        subtitle: 'Drag the fruit to its shadow',
+        leftHeader: 'Fruits',
+        rightHeader: 'Shadows',
+        items: [
+          { id:'apple',      color:'#FFB8C8', speak:'Apple',
+            left:'<span class="fruit-emoji">🍎</span>',
+            right:'<span class="shadow-emoji">🍎</span><span class="shadow-name">Apple</span>' },
+          { id:'banana',     color:'#FFE89E', speak:'Banana',
+            left:'<span class="fruit-emoji">🍌</span>',
+            right:'<span class="shadow-emoji">🍌</span><span class="shadow-name">Banana</span>' },
+          { id:'orange',     color:'#FFC9A8', speak:'Orange',
+            left:'<span class="fruit-emoji">🍊</span>',
+            right:'<span class="shadow-emoji">🍊</span><span class="shadow-name">Orange</span>' },
+          { id:'strawberry', color:'#FFB3B3', speak:'Strawberry',
+            left:'<span class="fruit-emoji">🍓</span>',
+            right:'<span class="shadow-emoji">🍓</span><span class="shadow-name">Strawberry</span>' },
+          { id:'grapes',     color:'#D6C8FF', speak:'Grapes',
+            left:'<span class="fruit-emoji">🍇</span>',
+            right:'<span class="shadow-emoji">🍇</span><span class="shadow-name">Grapes</span>' },
+          { id:'mango',      color:'#FFD89E', speak:'Mango',
+            left:'<span class="fruit-emoji">🥭</span>',
+            right:'<span class="shadow-emoji">🥭</span><span class="shadow-name">Mango</span>' },
+        ]
+      },
+      animals: {
+        title: 'Animal Match',
+        subtitle: 'Drag the animal to its shadow',
+        leftHeader: 'Animals',
+        rightHeader: 'Shadows',
+        items: [
+          { id:'dog',    color:'#FFC9A8', speak:'Dog',
+            left:'<span class="fruit-emoji">🐶</span>',
+            right:'<span class="shadow-emoji">🐶</span><span class="shadow-name">Dog</span>' },
+          { id:'cat',    color:'#FFE89E', speak:'Cat',
+            left:'<span class="fruit-emoji">🐱</span>',
+            right:'<span class="shadow-emoji">🐱</span><span class="shadow-name">Cat</span>' },
+          { id:'cow',    color:'#FFB8C8', speak:'Cow',
+            left:'<span class="fruit-emoji">🐮</span>',
+            right:'<span class="shadow-emoji">🐮</span><span class="shadow-name">Cow</span>' },
+          { id:'goat',   color:'#FFB3B3', speak:'Goat',
+            left:'<span class="fruit-emoji">🐐</span>',
+            right:'<span class="shadow-emoji">🐐</span><span class="shadow-name">Goat</span>' },
+          { id:'monkey', color:'#D6C8FF', speak:'Monkey',
+            left:'<span class="fruit-emoji">🐵</span>',
+            right:'<span class="shadow-emoji">🐵</span><span class="shadow-name">Monkey</span>' },
+          { id:'lion',   color:'#B8F2D8', speak:'Lion',
+            left:'<span class="fruit-emoji">🦁</span>',
+            right:'<span class="shadow-emoji">🦁</span><span class="shadow-name">Lion</span>' },
+        ]
+      },
+      colors: {
+        title: 'Color Match',
+        subtitle: 'Drag the color to its name',
+        leftHeader: 'Colors',
+        rightHeader: 'Names',
+        items: [
+          { id:'red',    color:'#FF6B6B', speak:'Red',    left:'', right:'<span class="big-name">Red</span>' },
+          { id:'blue',   color:'#4A90E2', speak:'Blue',   left:'', right:'<span class="big-name">Blue</span>' },
+          { id:'yellow', color:'#FFD93D', speak:'Yellow', left:'', right:'<span class="big-name">Yellow</span>' },
+          { id:'green',  color:'#4ECDC4', speak:'Green',  left:'', right:'<span class="big-name">Green</span>' },
+          { id:'orange', color:'#FF9F43', speak:'Orange', left:'', right:'<span class="big-name">Orange</span>' },
+          { id:'purple', color:'#9C88FF', speak:'Purple', left:'', right:'<span class="big-name">Purple</span>' },
+        ]
+      },
+      alphabet: {
+        title: 'Letter Match',
+        subtitle: 'Drag the letter to its picture',
+        leftHeader: 'Letters',
+        rightHeader: 'Pictures',
+        items: [
+          { id:'a', color:'#FFB8C8', speak:'A is for Apple',
+            left:'<span class="big-letter">A</span>',
+            right:'<span class="shadow-emoji solid">🍎</span><span class="shadow-name">Apple</span>' },
+          { id:'b', color:'#FFE89E', speak:'B is for Bear',
+            left:'<span class="big-letter">B</span>',
+            right:'<span class="shadow-emoji solid">🐻</span><span class="shadow-name">Bear</span>' },
+          { id:'c', color:'#D6C8FF', speak:'C is for Cat',
+            left:'<span class="big-letter">C</span>',
+            right:'<span class="shadow-emoji solid">🐱</span><span class="shadow-name">Cat</span>' },
+          { id:'d', color:'#B8DCFF', speak:'D is for Duck',
+            left:'<span class="big-letter">D</span>',
+            right:'<span class="shadow-emoji solid">🦆</span><span class="shadow-name">Duck</span>' },
+          { id:'e', color:'#B8F2D8', speak:'E is for Egg',
+            left:'<span class="big-letter">E</span>',
+            right:'<span class="shadow-emoji solid">🥚</span><span class="shadow-name">Egg</span>' },
+          { id:'f', color:'#FFC9A8', speak:'F is for Fish',
+            left:'<span class="big-letter">F</span>',
+            right:'<span class="shadow-emoji solid">🐟</span><span class="shadow-name">Fish</span>' },
+        ]
+      }
+    };
+
+    // ---------- STATE ----------
+    const state = {
+      score: 0,
+      matched: new Set(),
+      currentGame: 'fruits',
+    };
+
+    // ---------- SCREEN NAVIGATION ----------
+    const screens = {
+      home: document.getElementById('home'),
+      game: document.getElementById('game'),
+    };
+
+    function showScreen(name) {
+      Object.values(screens).forEach(s => s.classList.remove('active'));
+      screens[name].classList.add('active');
+    }
+
+    // Home menu cards
+    document.querySelectorAll('.menu-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const game = card.dataset.game;
+        if (GAMES[game]) {
+          startGame(game);
+        }
+      });
+    });
+
+    document.getElementById('btnBack').addEventListener('click', () => showScreen('home'));
+    document.getElementById('btnHome').addEventListener('click', () => showScreen('home'));
+    document.getElementById('btnReset').addEventListener('click', () => startGame(state.currentGame));
+    document.getElementById('winHome').addEventListener('click', () => {
+      hideWin(); showScreen('home');
+    });
+    document.getElementById('winAgain').addEventListener('click', () => {
+      hideWin(); startGame(state.currentGame);
+    });
+
+    // ---------- AUDIO (Web Audio API tones) ----------
+    let audioCtx = null;
+    function getAudio() {
+      if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        catch (e) { return null; }
+      }
+      // Resume context (mobile autoplay policy)
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playNotes(freqs, duration = 0.18, type = 'sine', stagger = 0.08) {
+      const ctx = getAudio();
+      if (!ctx) return;
+      freqs.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        osc.connect(gain); gain.connect(ctx.destination);
+        const start = ctx.currentTime + i * stagger;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(0.18, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        osc.start(start);
+        osc.stop(start + duration + 0.05);
+      });
+    }
+
+    function playSuccess() { playNotes([523.25, 659.25, 783.99, 1046.5], 0.25, 'triangle', 0.07); }
+    function playMiss()    { playNotes([330, 250],                       0.18, 'sine',    0.09); }
+
+    // ---------- SPEECH ----------
+    function speak(text) {
+      if (!('speechSynthesis' in window)) return;
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 0.92;
+        u.pitch = 1.15;
+        u.volume = 1;
+        u.lang = 'en-US';
+        speechSynthesis.speak(u);
+      } catch (e) { /* ignore */ }
+    }
+
+    // ---------- HAPTICS ----------
+    function buzz(ms) {
+      if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
+    }
+
+    // ---------- TOAST ----------
+    const toastEl = document.getElementById('toast');
+    let toastTimer = null;
+    function showToast(text, kind = 'good') {
+      toastEl.textContent = text;
+      toastEl.className = 'toast show ' + kind;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toastEl.className = 'toast ' + kind; }, 900);
+    }
+
+    // ---------- CONFETTI ----------
+    const CONFETTI_COLORS = ['#FF6B8A', '#FFB347', '#4ECDC4', '#9C88FF', '#FFD93D', '#7BC8E6'];
+    function spawnConfetti(x, y, count = 22) {
+      for (let i = 0; i < count; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        const angle = Math.random() * Math.PI * 2;
+        const dist  = 70 + Math.random() * 90;
+        const tx = Math.cos(angle) * dist;
+        const ty = Math.sin(angle) * dist + 60; // bias downward
+        const rot = (Math.random() - 0.5) * 720;
+        c.style.left = x + 'px';
+        c.style.top  = y + 'px';
+        c.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+        c.style.setProperty('--tx', tx + 'px');
+        c.style.setProperty('--ty', ty + 'px');
+        c.style.setProperty('--rot', rot + 'deg');
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 1300);
+      }
+    }
+
+    // ---------- WIN OVERLAY ----------
+    const winOverlay = document.getElementById('winOverlay');
+    function showWin() {
+      winOverlay.classList.add('show');
+      // Big confetti burst
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      spawnConfetti(cx, cy, 60);
+      buzz([60, 40, 80]);
+    }
+    function hideWin() { winOverlay.classList.remove('show'); }
+
+    // ---------- SCORE ----------
+    const scoreValue = document.getElementById('scoreValue');
+    function setScore(n) {
+      state.score = n;
+      scoreValue.textContent = n;
+    }
+
+    // ---------- BUILD GAME ----------
+    const fruitRowEl  = document.getElementById('fruitRow');
+    const shadowRowEl = document.getElementById('shadowRow');
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function startGame(key) {
+      const game = GAMES[key];
+      if (!game) return;
+      state.currentGame = key;
+
+      // Reset state
+      state.matched.clear();
+      setScore(0);
+      hideWin();
+      fruitRowEl.innerHTML = '';
+      shadowRowEl.innerHTML = '';
+
+      // Update headers (title, subtitle, column labels)
+      document.getElementById('gameTitle').textContent    = game.title;
+      document.getElementById('gameSubtitle').textContent = game.subtitle;
+      document.getElementById('leftHeader').textContent   = game.leftHeader;
+      document.getElementById('rightHeader').textContent  = game.rightHeader;
+
+      // Items in a shuffled order; right column shuffled independently so positions don't line up
+      const leftOrder  = shuffle(game.items);
+      const rightOrder = shuffle(game.items);
+
+      // Build draggable left tiles
+      leftOrder.forEach(item => {
+        const tile = document.createElement('div');
+        tile.className = 'fruit-tile';
+        tile.dataset.id = item.id;
+        tile.style.setProperty('--tile-color', item.color);
+        tile.innerHTML = `
+          <button class="speak-btn" aria-label="Speak ${item.speak}">🔊</button>
+          ${item.left}
+        `;
+        tile.querySelector('.speak-btn').addEventListener('click', e => {
+          e.stopPropagation();
+          speak(item.speak);
+          buzz(15);
+        });
+        attachDrag(tile);
+        fruitRowEl.appendChild(tile);
+      });
+
+      // Build target right tiles
+      rightOrder.forEach(item => {
+        const tile = document.createElement('div');
+        tile.className = 'shadow-tile';
+        tile.dataset.id = item.id;
+        tile.style.setProperty('--tile-color', item.color);
+        tile.innerHTML = item.right;
+        shadowRowEl.appendChild(tile);
+      });
+
+      showScreen('game');
+    }
+
+    // ---------- DRAG & DROP (Pointer Events: works on touch + mouse) ----------
+    function attachDrag(tile) {
+      let dragging = false;
+      let pointerId = null;
+      let originRect = null;
+      let pointerStart = { x: 0, y: 0 };
+      let lastHover = null;
+
+      function onDown(e) {
+        if (state.matched.has(tile.dataset.id)) return;
+        // Ignore if started on the speaker button
+        if (e.target.closest('.speak-btn')) return;
+
+        dragging = true;
+        pointerId = e.pointerId;
+        try { tile.setPointerCapture(pointerId); } catch (err) {}
+
+        originRect = tile.getBoundingClientRect();
+        pointerStart = { x: e.clientX, y: e.clientY };
+
+        tile.classList.add('dragging');
+        // Lift tile out of its grid cell so it can move freely; fix to its current position.
+        tile.style.position = 'fixed';
+        tile.style.left = originRect.left + 'px';
+        tile.style.top  = originRect.top  + 'px';
+        tile.style.width  = originRect.width  + 'px';
+        tile.style.height = originRect.height + 'px';
+        tile.style.margin = '0';
+
+        getAudio(); // unlock audio on first user gesture
+      }
+
+      function onMove(e) {
+        if (!dragging || e.pointerId !== pointerId) return;
+        e.preventDefault();
+        const dx = e.clientX - pointerStart.x;
+        const dy = e.clientY - pointerStart.y;
+        tile.style.transform = `translate(${dx}px, ${dy}px) scale(1.12)`;
+
+        // Hover detection
+        const target = findShadowAt(e.clientX, e.clientY);
+        if (target !== lastHover) {
+          if (lastHover) lastHover.classList.remove('hover');
+          if (target && !target.classList.contains('filled')) target.classList.add('hover');
+          lastHover = target;
+        }
+      }
+
+      function onUp(e) {
+        if (!dragging || e.pointerId !== pointerId) return;
+        dragging = false;
+        try { tile.releasePointerCapture(pointerId); } catch (err) {}
+
+        const target = findShadowAt(e.clientX, e.clientY);
+        if (lastHover) lastHover.classList.remove('hover');
+        lastHover = null;
+
+        if (target && !target.classList.contains('filled') && target.dataset.id === tile.dataset.id) {
+          // Correct match
+          handleMatch(tile, target, e.clientX, e.clientY);
+        } else {
+          // Wrong / no target — return tile
+          returnTile(tile);
+          if (target && target.dataset.id !== tile.dataset.id) {
+            // Only show "Try again" when actually dropped onto a wrong shadow
+            showToast('Try again!', 'bad');
+            playMiss();
+            buzz(80);
+          } else {
+            // Snap silently if dropped on empty area
+            tile.classList.remove('dragging');
+          }
+        }
+      }
+
+      tile.addEventListener('pointerdown', onDown);
+      tile.addEventListener('pointermove', onMove);
+      tile.addEventListener('pointerup',   onUp);
+      tile.addEventListener('pointercancel', onUp);
+    }
+
+    function returnTile(tile) {
+      // Animate back to original cell
+      tile.style.transition = 'transform 0.3s cubic-bezier(.34,1.56,.64,1), left 0.3s ease, top 0.3s ease';
+      tile.style.transform = 'translate(0,0) scale(1)';
+
+      setTimeout(() => {
+        // Reset all the inline styles we added so it returns to grid layout
+        tile.classList.remove('dragging');
+        tile.style.position = '';
+        tile.style.left = '';
+        tile.style.top = '';
+        tile.style.width = '';
+        tile.style.height = '';
+        tile.style.margin = '';
+        tile.style.transform = '';
+        tile.style.transition = '';
+      }, 300);
+    }
+
+    function findShadowAt(x, y) {
+      // Temporarily ignore the dragged tile by using elementsFromPoint
+      const stack = document.elementsFromPoint(x, y);
+      for (const el of stack) {
+        if (el.classList && el.classList.contains('shadow-tile')) return el;
+      }
+      return null;
+    }
+
+    function handleMatch(tile, target, x, y) {
+      const id = tile.dataset.id;
+      state.matched.add(id);
+
+      // Mark target as filled — animate
+      target.classList.add('filled');
+
+      // Hide tile
+      tile.classList.add('matched');
+      // Clean inline styles after fade
+      setTimeout(() => {
+        tile.style.position = '';
+        tile.style.left = '';
+        tile.style.top = '';
+        tile.style.width = '';
+        tile.style.height = '';
+        tile.style.margin = '';
+        tile.style.transform = '';
+      }, 300);
+
+      // Score, sounds, effects
+      setScore(state.score + 10);
+      playSuccess();
+      buzz(50);
+      showToast('Great job!', 'good');
+      spawnConfetti(x, y);
+
+      // Speak the item name as positive reinforcement
+      const items = GAMES[state.currentGame].items;
+      const item = items.find(it => it.id === id);
+      if (item) setTimeout(() => speak(item.speak), 200);
+
+      // Win check
+      if (state.matched.size === items.length) {
+        setTimeout(showWin, 700);
+      }
+    }
+
+    // Prevent page scroll bounce on iOS while dragging
+    document.addEventListener('touchmove', e => {
+      if (document.querySelector('.fruit-tile.dragging')) e.preventDefault();
+    }, { passive: false });
+  </script>
+</body>
+</html>
